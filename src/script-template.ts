@@ -52,14 +52,6 @@ export async function connectToMCP(target: string): Promise<MCPConnection> {
     let lastError: Error | null = null;
 
     try {
-      const transport = new SSEClientTransport(url);
-      await client.connect(transport);
-      return { client, close: async () => await transport.close() };
-    } catch (sseError) {
-      lastError = sseError instanceof Error ? sseError : new Error(String(sseError));
-    }
-
-    try {
       const transport = new StreamableHTTPClientTransport(url);
       await client.connect(transport);
       return { client, close: async () => await transport.close() };
@@ -69,6 +61,14 @@ export async function connectToMCP(target: string): Promise<MCPConnection> {
           httpError instanceof Error ? httpError.message : String(httpError)
         })\`
       );
+    }
+
+    try {
+      const transport = new SSEClientTransport(url);
+      await client.connect(transport);
+      return { client, close: async () => await transport.close() };
+    } catch (sseError) {
+      lastError = sseError instanceof Error ? sseError : new Error(String(sseError));
     }
   } else {
     const { command, args } = parseCommand(target);
@@ -83,7 +83,7 @@ export async function connectToMCP(target: string): Promise<MCPConnection> {
 function generateExampleArgs(tool: ToolInfo): string {
   const props = tool.inputSchema?.properties as Record<string, { type?: string }> | undefined;
   const required = (tool.inputSchema?.required as string[]) || [];
-  
+
   if (!props || Object.keys(props).length === 0) {
     return "";
   }

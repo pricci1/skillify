@@ -22,24 +22,9 @@ export async function connectToMCP(target: string): Promise<MCPConnection> {
     const client = new Client({ name: "skillify", version: "0.1.0" });
 
     if (isUrl(target)) {
-      // Try SSE first, fall back to StreamableHTTP
       const url = new URL(target);
       let lastError: Error | null = null;
 
-      try {
-        const transport = new SSEClientTransport(url);
-        await client.connect(transport);
-        return {
-          client,
-          close: async () => {
-            await transport.close();
-          },
-        };
-      } catch (sseError) {
-        lastError = sseError instanceof Error ? sseError : new Error(String(sseError));
-      }
-
-      // Fall back to StreamableHTTP
       try {
         const transport = new StreamableHTTPClientTransport(url);
         await client.connect(transport);
@@ -50,9 +35,23 @@ export async function connectToMCP(target: string): Promise<MCPConnection> {
           },
         };
       } catch (httpError) {
+        lastError = httpError instanceof Error ? httpError : new Error(String(httpError));
+      }
+
+      // Fall back to SSE (deprecated)
+      try {
+        const transport = new SSEClientTransport(url);
+        await client.connect(transport);
+        return {
+          client,
+          close: async () => {
+            await transport.close();
+          },
+        };
+      } catch (sseError) {
         throw new Error(
-          `Failed with both SSE (${lastError?.message}) and HTTP (${
-            httpError instanceof Error ? httpError.message : String(httpError)
+          `Failed with both HTTP (${lastError?.message}) and SSE (${
+            sseError instanceof Error ? sseError.message : String(sseError)
           })`
         );
       }
