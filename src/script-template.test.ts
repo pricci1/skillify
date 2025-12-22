@@ -1,5 +1,6 @@
 import { it, expect, describe } from "bun:test";
-import { generateCallToolScript, generateMcpClientScript } from "./script-template";
+import { generateCallToolScript, generateMcpClientScript, generateScriptDocumentation } from "./script-template";
+import type { ToolInfo } from "./introspect";
 
 describe("generateCallToolScript", () => {
   it("embeds the target into the script", () => {
@@ -27,5 +28,42 @@ describe("generateMcpClientScript", () => {
   it("imports from @modelcontextprotocol/sdk", () => {
     const script = generateMcpClientScript();
     expect(script).toContain("@modelcontextprotocol/sdk");
+  });
+});
+
+describe("generateScriptDocumentation", () => {
+  it("generates usage section with tool examples", () => {
+    const tools: ToolInfo[] = [
+      {
+        name: "search_files",
+        description: "Search for files",
+        inputSchema: {
+          type: "object",
+          properties: { pattern: { type: "string" } },
+          required: ["pattern"],
+        },
+      },
+    ];
+    const doc = generateScriptDocumentation(tools);
+    expect(doc).toContain("## Using the MCP Script");
+    expect(doc).toContain("bun scripts/call-tool.ts");
+    expect(doc).toContain("search_files");
+  });
+
+  it("generates example with required parameters", () => {
+    const tools: ToolInfo[] = [
+      {
+        name: "read_file",
+        description: "Read a file",
+        inputSchema: {
+          type: "object",
+          properties: { path: { type: "string", description: "File path" } },
+          required: ["path"],
+        },
+      },
+    ];
+    const doc = generateScriptDocumentation(tools);
+    expect(doc).toContain("read_file");
+    expect(doc).toContain('"path"');
   });
 });
