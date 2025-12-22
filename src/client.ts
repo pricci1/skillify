@@ -17,26 +17,33 @@ function parseCommand(target: string): { command: string; args: string[] } {
 }
 
 export async function connectToMCP(target: string): Promise<MCPConnection> {
-  const client = new Client({ name: "skillify", version: "0.1.0" });
+  try {
+    const client = new Client({ name: "skillify", version: "0.1.0" });
 
-  if (isUrl(target)) {
-    const transport = new SSEClientTransport(new URL(target));
-    await client.connect(transport);
-    return {
-      client,
-      close: async () => {
-        await transport.close();
-      },
-    };
-  } else {
-    const { command, args } = parseCommand(target);
-    const transport = new StdioClientTransport({ command, args });
-    await client.connect(transport);
-    return {
-      client,
-      close: async () => {
-        await transport.close();
-      },
-    };
+    if (isUrl(target)) {
+      const transport = new SSEClientTransport(new URL(target));
+      await client.connect(transport);
+      return {
+        client,
+        close: async () => {
+          await transport.close();
+        },
+      };
+    } else {
+      const { command, args } = parseCommand(target);
+      const transport = new StdioClientTransport({ command, args });
+      await client.connect(transport);
+      return {
+        client,
+        close: async () => {
+          await transport.close();
+        },
+      };
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Failed to connect to MCP server: ${error.message}`);
+    }
+    throw error;
   }
 }

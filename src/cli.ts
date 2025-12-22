@@ -16,20 +16,27 @@ export function createCLI() {
     .command("list <target>")
     .description("List tools and prompts from an MCP server")
     .action(async (target: string) => {
-      console.log(`Connecting to: ${target}`);
-      const { client, close } = await connectToMCP(target);
       try {
-        const info = await introspect(client);
-        console.log(`\nTools (${info.tools.length}):`);
-        for (const tool of info.tools) {
-          console.log(`  - ${tool.name}: ${tool.description || "(no description)"}`);
+        console.log(`Connecting to: ${target}`);
+        const { client, close } = await connectToMCP(target);
+        try {
+          const info = await introspect(client);
+          console.log(`\nTools (${info.tools.length}):`);
+          for (const tool of info.tools) {
+            console.log(`  - ${tool.name}: ${tool.description || "(no description)"}`);
+          }
+          console.log(`\nPrompts (${info.prompts.length}):`);
+          for (const prompt of info.prompts) {
+            console.log(`  - ${prompt.name}: ${prompt.description || "(no description)"}`);
+          }
+        } finally {
+          await close();
         }
-        console.log(`\nPrompts (${info.prompts.length}):`);
-        for (const prompt of info.prompts) {
-          console.log(`  - ${prompt.name}: ${prompt.description || "(no description)"}`);
-        }
-      } finally {
-        await close();
+      } catch (error) {
+        console.error(
+          `Error: ${error instanceof Error ? error.message : error}`
+        );
+        process.exit(1);
       }
     });
 
@@ -42,40 +49,47 @@ export function createCLI() {
     .option("--exclude <tools>", "Comma-separated tools to exclude")
     .option("--all", "Include all tools without prompting")
     .action(async (target: string, options) => {
-      console.log(`Connecting to: ${target}`);
-      const { client, close } = await connectToMCP(target);
-
       try {
-        const info = await introspect(client);
-        console.log(
-          `Found ${info.tools.length} tools, ${info.prompts.length} prompts`
-        );
+        console.log(`Connecting to: ${target}`);
+        const { client, close } = await connectToMCP(target);
 
-        const selectedTools = await filterTools(info.tools, {
-          include: options.include,
-          exclude: options.exclude,
-          all: options.all,
-        });
+        try {
+          const info = await introspect(client);
+          console.log(
+            `Found ${info.tools.length} tools, ${info.prompts.length} prompts`
+          );
 
-        if (selectedTools.length === 0) {
-          console.log("No tools selected. Exiting.");
-          return;
+          const selectedTools = await filterTools(info.tools, {
+            include: options.include,
+            exclude: options.exclude,
+            all: options.all,
+          });
+
+          if (selectedTools.length === 0) {
+            console.log("No tools selected. Exiting.");
+            return;
+          }
+
+          const skillName = options.name || info.name || "mcp-skill";
+          const outputDir = options.output || `./${skillName}`;
+
+          console.log(`Generating skill: ${skillName}`);
+          await generateSkill({
+            name: skillName,
+            outputDir,
+            tools: selectedTools,
+            prompts: info.prompts,
+          });
+
+          console.log(`✓ Skill generated at: ${outputDir}`);
+        } finally {
+          await close();
         }
-
-        const skillName = options.name || info.name || "mcp-skill";
-        const outputDir = options.output || `./${skillName}`;
-
-        console.log(`Generating skill: ${skillName}`);
-        await generateSkill({
-          name: skillName,
-          outputDir,
-          tools: selectedTools,
-          prompts: info.prompts,
-        });
-
-        console.log(`✓ Skill generated at: ${outputDir}`);
-      } finally {
-        await close();
+      } catch (error) {
+        console.error(
+          `Error: ${error instanceof Error ? error.message : error}`
+        );
+        process.exit(1);
       }
     });
 
