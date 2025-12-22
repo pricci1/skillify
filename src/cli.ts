@@ -1,4 +1,6 @@
 import { Command } from "commander";
+import { connectToMCP } from "./client";
+import { introspect } from "./introspect";
 
 export function createCLI() {
   const program = new Command();
@@ -12,7 +14,21 @@ export function createCLI() {
     .command("list <target>")
     .description("List tools and prompts from an MCP server")
     .action(async (target: string) => {
-      console.log(`Listing tools from: ${target}`);
+      console.log(`Connecting to: ${target}`);
+      const { client, close } = await connectToMCP(target);
+      try {
+        const info = await introspect(client);
+        console.log(`\nTools (${info.tools.length}):`);
+        for (const tool of info.tools) {
+          console.log(`  - ${tool.name}: ${tool.description || "(no description)"}`);
+        }
+        console.log(`\nPrompts (${info.prompts.length}):`);
+        for (const prompt of info.prompts) {
+          console.log(`  - ${prompt.name}: ${prompt.description || "(no description)"}`);
+        }
+      } finally {
+        await close();
+      }
     });
 
   program
