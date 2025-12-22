@@ -48,7 +48,6 @@ export function createCLI() {
     .option("--include <tools>", "Comma-separated tools to include")
     .option("--exclude <tools>", "Comma-separated tools to exclude")
     .option("--all", "Include all tools without prompting")
-    .option("--with-script", "Include executable script for calling MCP tools")
     .action(async (target: string, options) => {
       try {
         console.log(`Connecting to: ${target}`);
@@ -80,8 +79,8 @@ export function createCLI() {
             outputDir,
             tools: selectedTools,
             prompts: info.prompts,
-            withScript: options.withScript,
-            target: options.withScript ? target : undefined,
+            withScript: true,
+            target,
           });
 
           console.log(`✓ Skill generated at: ${outputDir}`);
