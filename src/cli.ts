@@ -1,6 +1,8 @@
 import { Command } from "commander";
 import { connectToMCP } from "./client";
 import { introspect } from "./introspect";
+import { filterTools } from "./filter";
+import { generateSkill } from "./generator";
 
 export function createCLI() {
   const program = new Command();
@@ -40,7 +42,41 @@ export function createCLI() {
     .option("--exclude <tools>", "Comma-separated tools to exclude")
     .option("--all", "Include all tools without prompting")
     .action(async (target: string, options) => {
-      console.log(`Packing: ${target}`, options);
+      console.log(`Connecting to: ${target}`);
+      const { client, close } = await connectToMCP(target);
+
+      try {
+        const info = await introspect(client);
+        console.log(
+          `Found ${info.tools.length} tools, ${info.prompts.length} prompts`
+        );
+
+        const selectedTools = await filterTools(info.tools, {
+          include: options.include,
+          exclude: options.exclude,
+          all: options.all,
+        });
+
+        if (selectedTools.length === 0) {
+          console.log("No tools selected. Exiting.");
+          return;
+        }
+
+        const skillName = options.name || info.name || "mcp-skill";
+        const outputDir = options.output || `./${skillName}`;
+
+        console.log(`Generating skill: ${skillName}`);
+        await generateSkill({
+          name: skillName,
+          outputDir,
+          tools: selectedTools,
+          prompts: info.prompts,
+        });
+
+        console.log(`✓ Skill generated at: ${outputDir}`);
+      } finally {
+        await close();
+      }
     });
 
   return program;

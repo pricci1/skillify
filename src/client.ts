@@ -12,8 +12,8 @@ function isUrl(target: string): boolean {
 }
 
 function parseCommand(target: string): { command: string; args: string[] } {
-  const parts = target.split(/\s+/);
-  return { command: parts[0], args: parts.slice(1) };
+  const parts = target.split(/\s+/).filter(Boolean);
+  return { command: parts[0]!, args: parts.slice(1) };
 }
 
 export async function connectToMCP(target: string): Promise<MCPConnection> {
