@@ -1,2 +1,5 @@
 #!/usr/bin/env bun
-console.log("skillify");
+import { createCLI } from "./cli";
+
+const program = createCLI();
+program.parse();
