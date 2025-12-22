@@ -1,6 +1,7 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
 export interface MCPConnection {
   client: Client;
@@ -21,14 +22,40 @@ export async function connectToMCP(target: string): Promise<MCPConnection> {
     const client = new Client({ name: "skillify", version: "0.1.0" });
 
     if (isUrl(target)) {
-      const transport = new SSEClientTransport(new URL(target));
-      await client.connect(transport);
-      return {
-        client,
-        close: async () => {
-          await transport.close();
-        },
-      };
+      // Try SSE first, fall back to StreamableHTTP
+      const url = new URL(target);
+      let lastError: Error | null = null;
+
+      try {
+        const transport = new SSEClientTransport(url);
+        await client.connect(transport);
+        return {
+          client,
+          close: async () => {
+            await transport.close();
+          },
+        };
+      } catch (sseError) {
+        lastError = sseError instanceof Error ? sseError : new Error(String(sseError));
+      }
+
+      // Fall back to StreamableHTTP
+      try {
+        const transport = new StreamableHTTPClientTransport(url);
+        await client.connect(transport);
+        return {
+          client,
+          close: async () => {
+            await transport.close();
+          },
+        };
+      } catch (httpError) {
+        throw new Error(
+          `Failed with both SSE (${lastError?.message}) and HTTP (${
+            httpError instanceof Error ? httpError.message : String(httpError)
+          })`
+        );
+      }
     } else {
       const { command, args } = parseCommand(target);
       const transport = new StdioClientTransport({ command, args });
