@@ -1,12 +1,19 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { ToolInfo, PromptInfo } from "./introspect";
+import {
+  generateCallToolScript,
+  generateMcpClientScript,
+  generateScriptDocumentation,
+} from "./script-template";
 
 export interface GeneratorOptions {
   name: string;
   outputDir: string;
   tools: ToolInfo[];
   prompts: PromptInfo[];
+  withScript?: boolean;
+  target?: string;
 }
 
 function slugify(name: string): string {
@@ -48,13 +55,18 @@ function generateToolSection(tool: ToolInfo): string {
   return section;
 }
 
-function generateSkillMd(name: string, tools: ToolInfo[]): string {
+function generateSkillMd(name: string, tools: ToolInfo[], withScript?: boolean): string {
   let content = generateFrontmatter(name, tools);
   content += `\n\n# ${name}\n\n`;
   content += `## Available Tools\n\n`;
   for (const tool of tools) {
     content += generateToolSection(tool) + "\n";
   }
+
+  if (withScript) {
+    content += generateScriptDocumentation(tools);
+  }
+
   return content;
 }
 
@@ -72,12 +84,12 @@ ${JSON.stringify(tool.inputSchema, null, 2)}
 }
 
 export async function generateSkill(options: GeneratorOptions): Promise<void> {
-  const { name, outputDir, tools } = options;
+  const { name, outputDir, tools, withScript, target } = options;
 
   await mkdir(outputDir, { recursive: true });
   await mkdir(join(outputDir, "references", "tools"), { recursive: true });
 
-  const skillMd = generateSkillMd(name, tools);
+  const skillMd = generateSkillMd(name, tools, withScript);
   await writeFile(join(outputDir, "SKILL.md"), skillMd);
 
   for (const tool of tools) {
@@ -85,6 +97,18 @@ export async function generateSkill(options: GeneratorOptions): Promise<void> {
     await writeFile(
       join(outputDir, "references", "tools", `${slugify(tool.name)}.md`),
       ref
+    );
+  }
+
+  if (withScript && target) {
+    await mkdir(join(outputDir, "scripts"), { recursive: true });
+    await writeFile(
+      join(outputDir, "scripts", "call-tool.ts"),
+      generateCallToolScript(target)
+    );
+    await writeFile(
+      join(outputDir, "scripts", "mcp-client.ts"),
+      generateMcpClientScript()
     );
   }
 }
