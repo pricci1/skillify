@@ -1,11 +1,11 @@
-#!/usr/bin/env bun
-import { connectToMCP } from "./mcp-client.ts";
+#!/usr/bin/env node
+import { connectToMCP } from "./mcp-client.js";
 
 const TARGET = "<%= target %>";
 
 const [toolName, argsJson] = process.argv.slice(2);
 if (!toolName) {
-  console.error("Usage: call-tool.ts <tool-name> [args-json]");
+  console.error("Usage: call-tool.js <tool-name> [args-json]");
   process.exit(1);
 }
 

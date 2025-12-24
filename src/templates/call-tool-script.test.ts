@@ -7,8 +7,8 @@ describe("call-tool-script template", () => {
     expect(result).toContain('const TARGET = "npx my-server"');
   });
 
-  it("is a valid bun shebang script", async () => {
+  it("is a valid node shebang script", async () => {
     const result = await renderTemplate("call-tool-script", { target: "test" });
-    expect(result.startsWith("#!/usr/bin/env bun")).toBe(true);
+    expect(result.startsWith("#!/usr/bin/env node")).toBe(true);
   });
 });

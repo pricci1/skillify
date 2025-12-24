@@ -8,14 +8,14 @@ describe("generateCallToolScript", () => {
     expect(script).toContain('const TARGET = "node ./my-mcp.js"');
   });
 
-  it("includes shebang for bun", async () => {
+  it("includes shebang for node", async () => {
     const script = await generateCallToolScript("node ./my-mcp.js");
-    expect(script).toMatch(/^#!\/usr\/bin\/env bun/);
+    expect(script).toMatch(/^#!\/usr\/bin\/env node/);
   });
 
   it("imports from mcp-client", async () => {
     const script = await generateCallToolScript("node ./my-mcp.js");
-    expect(script).toContain('import { connectToMCP } from "./mcp-client.ts"');
+    expect(script).toContain('import { connectToMCP } from "./mcp-client.js"');
   });
 });
 
@@ -48,7 +48,7 @@ describe("generateScriptDocumentation", () => {
     ];
     const doc = await generateScriptDocumentation(tools);
     expect(doc).toContain("## Using the MCP Script");
-    expect(doc).toContain("bun scripts/call-tool.ts");
+    expect(doc).toContain("node scripts/call-tool.js");
     expect(doc).toContain("search_files");
   });
 

@@ -36,7 +36,7 @@ function generateExampleArgs(tool: ToolInfo): string {
 export async function generateScriptDocumentation(tools: ToolInfo[]): Promise<string> {
   const examples = tools.slice(0, 3).map((tool) => {
     const args = generateExampleArgs(tool);
-    return `bun scripts/call-tool.ts ${tool.name}${args}`;
+    return `node scripts/call-tool.js ${tool.name}${args}`;
   });
   return renderTemplate("script-documentation", { examples });
 }

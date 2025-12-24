@@ -75,7 +75,7 @@ describe("generateSkill", () => {
     });
 
     const content = await readFile(
-      join(TEST_OUTPUT, "scripts", "call-tool.ts"),
+      join(TEST_OUTPUT, "scripts", "call-tool.js"),
       "utf-8"
     );
     expect(content).toContain('const TARGET = "node ./my-server.js"');

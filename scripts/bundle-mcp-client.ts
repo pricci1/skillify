@@ -2,8 +2,8 @@ import { mkdir, writeFile } from "node:fs/promises";
 
 const result = await Bun.build({
   entrypoints: ["src/scripts/mcp-client.src.ts"],
-  target: "bun",
-  minify: false,
+  target: "node",
+  minify: true,
 });
 
 if (!result.outputs[0]) {
@@ -19,4 +19,4 @@ await writeFile(
   `// Auto-generated - do not edit\nexport const mcpClientBundled = ${JSON.stringify(bundled)};\n`
 );
 
-console.log("Bundled mcp-client.ts →", bundled.length, "bytes");
+console.log("Bundled mcp-client.js →", bundled.length, "bytes");

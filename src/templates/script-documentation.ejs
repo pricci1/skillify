@@ -7,10 +7,10 @@ The skill includes executable scripts for calling MCP tools directly without Amp
 
 ```bash
 # List available tools
-bun scripts/call-tool.ts --help
+node scripts/call-tool.js --help
 
 # Call a tool
-<%- examples[0] || 'bun scripts/call-tool.ts <tool-name>' %>
+<%- examples[0] || 'node scripts/call-tool.js <tool-name>' %>
 ```
 
 ### Examples
@@ -24,7 +24,7 @@ bun scripts/call-tool.ts --help
 
 ### Scripts Included
 
-- **scripts/call-tool.ts** - Executable script to call tools
+- **scripts/call-tool.js** - Executable script to call tools
 - **scripts/mcp-client.ts** - MCP connection helper
 
 The target MCP server is embedded in the script at generation time.

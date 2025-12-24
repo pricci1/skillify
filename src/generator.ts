@@ -102,11 +102,11 @@ export async function generateSkill(options: GeneratorOptions): Promise<void> {
   if (withScript && target) {
     await mkdir(join(outputDir, "scripts"), { recursive: true });
     await writeFile(
-      join(outputDir, "scripts", "call-tool.ts"),
+      join(outputDir, "scripts", "call-tool.js"),
       await generateCallToolScript(target)
     );
     await writeFile(
-      join(outputDir, "scripts", "mcp-client.ts"),
+      join(outputDir, "scripts", "mcp-client.js"),
       generateMcpClientScript()
     );
   }

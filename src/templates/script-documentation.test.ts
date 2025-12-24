@@ -4,8 +4,8 @@ import { renderTemplate } from "./render";
 describe("script-documentation template", () => {
   it("renders tool examples", async () => {
     const examples = [
-      'bun scripts/call-tool.ts ask \'{"question":"test"}\'',
-      'bun scripts/call-tool.ts search'
+      'node scripts/call-tool.js ask \'{"question":"test"}\'',
+      'node scripts/call-tool.js search'
     ];
     const result = await renderTemplate("script-documentation", { examples });
     expect(result).toContain("## Using the MCP Script");
