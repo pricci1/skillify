@@ -1,5 +1,6 @@
 #!/usr/bin/env bun
-import { mkdir } from "node:fs/promises";
+import { mkdir, cp } from "node:fs/promises";
+import { Glob } from "bun";
 
 const result = await Bun.build({
   entrypoints: ["src/index.ts"],
@@ -18,3 +19,11 @@ if (!result.success) {
 
 console.log("✓ Bundled CLI to dist/index.js");
 console.log(`  Size: ${result.outputs[0]?.size || 0} bytes`);
+
+const glob = new Glob("*.ejs");
+let templateCount = 0;
+for await (const file of glob.scan("src/templates")) {
+  await cp(`src/templates/${file}`, `dist/${file}`);
+  templateCount++;
+}
+console.log(`✓ Copied ${templateCount} EJS templates to dist/`);
