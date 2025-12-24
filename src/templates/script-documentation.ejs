@@ -1,0 +1,30 @@
+
+## Using the MCP Script
+
+The skill includes executable scripts for calling MCP tools directly without Amp integration.
+
+### Quick Start
+
+```bash
+# List available tools
+bun scripts/call-tool.ts --help
+
+# Call a tool
+<%- examples[0] || 'bun scripts/call-tool.ts <tool-name>' %>
+```
+
+### Examples
+
+<% for (const example of examples) { %>
+```bash
+<%- example %>
+```
+
+<% } %>
+
+### Scripts Included
+
+- **scripts/call-tool.ts** - Executable script to call tools
+- **scripts/mcp-client.ts** - MCP connection helper
+
+The target MCP server is embedded in the script at generation time.

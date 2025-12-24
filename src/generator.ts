@@ -55,7 +55,7 @@ function generateToolSection(tool: ToolInfo): string {
   return section;
 }
 
-function generateSkillMd(name: string, tools: ToolInfo[], withScript?: boolean): string {
+async function generateSkillMd(name: string, tools: ToolInfo[], withScript?: boolean): Promise<string> {
   let content = generateFrontmatter(name, tools);
   content += `\n\n# ${name}\n\n`;
   content += `## Available Tools\n\n`;
@@ -64,7 +64,7 @@ function generateSkillMd(name: string, tools: ToolInfo[], withScript?: boolean):
   }
 
   if (withScript) {
-    content += generateScriptDocumentation(tools);
+    content += await generateScriptDocumentation(tools);
   }
 
   return content;
@@ -89,7 +89,7 @@ export async function generateSkill(options: GeneratorOptions): Promise<void> {
   await mkdir(outputDir, { recursive: true });
   await mkdir(join(outputDir, "references", "tools"), { recursive: true });
 
-  const skillMd = generateSkillMd(name, tools, withScript);
+  const skillMd = await generateSkillMd(name, tools, withScript);
   await writeFile(join(outputDir, "SKILL.md"), skillMd);
 
   for (const tool of tools) {
@@ -104,7 +104,7 @@ export async function generateSkill(options: GeneratorOptions): Promise<void> {
     await mkdir(join(outputDir, "scripts"), { recursive: true });
     await writeFile(
       join(outputDir, "scripts", "call-tool.ts"),
-      generateCallToolScript(target)
+      await generateCallToolScript(target)
     );
     await writeFile(
       join(outputDir, "scripts", "mcp-client.ts"),

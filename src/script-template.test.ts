@@ -3,18 +3,18 @@ import { generateCallToolScript, generateMcpClientScript, generateScriptDocument
 import type { ToolInfo } from "./introspect";
 
 describe("generateCallToolScript", () => {
-  it("embeds the target into the script", () => {
-    const script = generateCallToolScript("node ./my-mcp.js");
+  it("embeds the target into the script", async () => {
+    const script = await generateCallToolScript("node ./my-mcp.js");
     expect(script).toContain('const TARGET = "node ./my-mcp.js"');
   });
 
-  it("includes shebang for bun", () => {
-    const script = generateCallToolScript("node ./my-mcp.js");
+  it("includes shebang for bun", async () => {
+    const script = await generateCallToolScript("node ./my-mcp.js");
     expect(script).toMatch(/^#!\/usr\/bin\/env bun/);
   });
 
-  it("imports from mcp-client", () => {
-    const script = generateCallToolScript("node ./my-mcp.js");
+  it("imports from mcp-client", async () => {
+    const script = await generateCallToolScript("node ./my-mcp.js");
     expect(script).toContain('import { connectToMCP } from "./mcp-client.ts"');
   });
 });
@@ -34,7 +34,7 @@ describe("generateMcpClientScript", () => {
 });
 
 describe("generateScriptDocumentation", () => {
-  it("generates usage section with tool examples", () => {
+  it("generates usage section with tool examples", async () => {
     const tools: ToolInfo[] = [
       {
         name: "search_files",
@@ -46,13 +46,13 @@ describe("generateScriptDocumentation", () => {
         },
       },
     ];
-    const doc = generateScriptDocumentation(tools);
+    const doc = await generateScriptDocumentation(tools);
     expect(doc).toContain("## Using the MCP Script");
     expect(doc).toContain("bun scripts/call-tool.ts");
     expect(doc).toContain("search_files");
   });
 
-  it("generates example with required parameters", () => {
+  it("generates example with required parameters", async () => {
     const tools: ToolInfo[] = [
       {
         name: "read_file",
@@ -64,7 +64,7 @@ describe("generateScriptDocumentation", () => {
         },
       },
     ];
-    const doc = generateScriptDocumentation(tools);
+    const doc = await generateScriptDocumentation(tools);
     expect(doc).toContain("read_file");
     expect(doc).toContain('"path"');
   });

@@ -1,28 +1,9 @@
 import type { ToolInfo } from "./introspect";
 import { mcpClientBundled } from "./generated/mcp-client.bundled";
+import { renderTemplate } from "./templates/render";
 
-export function generateCallToolScript(target: string): string {
-  return `#!/usr/bin/env bun
-import { connectToMCP } from "./mcp-client.ts";
-
-const TARGET = "${target}";
-
-const [toolName, argsJson] = process.argv.slice(2);
-if (!toolName) {
-  console.error("Usage: call-tool.ts <tool-name> [args-json]");
-  process.exit(1);
-}
-
-const args = argsJson ? JSON.parse(argsJson) : {};
-const { client, close } = await connectToMCP(TARGET);
-
-try {
-  const result = await client.callTool({ name: toolName, arguments: args });
-  console.log(JSON.stringify(result, null, 2));
-} finally {
-  await close();
-}
-`;
+export async function generateCallToolScript(target: string): Promise<string> {
+  return renderTemplate("call-tool-script", { target });
 }
 
 export function generateMcpClientScript(): string {
@@ -52,38 +33,10 @@ function generateExampleArgs(tool: ToolInfo): string {
   return Object.keys(exampleObj).length > 0 ? ` '${JSON.stringify(exampleObj)}'` : "";
 }
 
-export function generateScriptDocumentation(tools: ToolInfo[]): string {
+export async function generateScriptDocumentation(tools: ToolInfo[]): Promise<string> {
   const examples = tools.slice(0, 3).map((tool) => {
     const args = generateExampleArgs(tool);
-    return `\`\`\`bash
-bun scripts/call-tool.ts ${tool.name}${args}
-\`\`\``;
+    return `bun scripts/call-tool.ts ${tool.name}${args}`;
   });
-
-  return `
-## Using the MCP Script
-
-The skill includes executable scripts for calling MCP tools directly without Amp integration.
-
-### Quick Start
-
-\`\`\`bash
-# List available tools
-bun scripts/call-tool.ts --help
-
-# Call a tool
-${examples[0] || 'bun scripts/call-tool.ts <tool-name>'}
-\`\`\`
-
-### Examples
-
-${examples.join("\n\n")}
-
-### Scripts Included
-
-- **scripts/call-tool.ts** - Executable script to call tools
-- **scripts/mcp-client.ts** - MCP connection helper
-
-The target MCP server is embedded in the script at generation time.
-`;
+  return renderTemplate("script-documentation", { examples });
 }
