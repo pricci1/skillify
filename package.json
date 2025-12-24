@@ -3,11 +3,16 @@
   "version": "0.1.0",
   "type": "module",
   "bin": {
-    "skillify": "./src/index.ts"
+    "skillify": "./dist/index.js"
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build:scripts": "bun scripts/bundle-mcp-client.ts",
-    "build": "bun run build:scripts",
+    "build:cli": "bun scripts/bundle-cli.ts",
+    "build": "bun run build:scripts && bun run build:cli",
     "prepublishOnly": "bun run build",
     "dev": "bun run src/index.ts",
     "typecheck": "bun run build:scripts && tsc --noEmit"
