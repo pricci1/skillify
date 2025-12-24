@@ -22,12 +22,14 @@ describe("generateCallToolScript", () => {
 describe("generateMcpClientScript", () => {
   it("exports connectToMCP function", () => {
     const script = generateMcpClientScript();
-    expect(script).toContain("export async function connectToMCP");
+    expect(script).toContain("connectToMCP");
+    expect(script).toMatch(/export\s*\{[^}]*connectToMCP/);
   });
 
-  it("imports from @modelcontextprotocol/sdk", () => {
+  it("is bundled with MCP SDK dependencies inlined", () => {
     const script = generateMcpClientScript();
-    expect(script).toContain("@modelcontextprotocol/sdk");
+    expect(script).toContain("SSEClientTransport");
+    expect(script).toContain("StdioClientTransport");
   });
 });
 

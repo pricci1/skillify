@@ -6,8 +6,11 @@
     "skillify": "./src/index.ts"
   },
   "scripts": {
+    "build:scripts": "bun scripts/bundle-mcp-client.ts",
+    "build": "bun run build:scripts",
+    "prepublishOnly": "bun run build",
     "dev": "bun run src/index.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "bun run build:scripts && tsc --noEmit"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.1",
