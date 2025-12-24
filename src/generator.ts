@@ -74,17 +74,12 @@ async function generateSkillMd(name: string, tools: ToolInfo[], withScript?: boo
   });
 }
 
-function generateToolReference(tool: ToolInfo): string {
-  return `# ${tool.name}
-
-${tool.description || "(No description)"}
-
-## Input Schema
-
-\`\`\`json
-${JSON.stringify(tool.inputSchema, null, 2)}
-\`\`\`
-`;
+async function generateToolReference(tool: ToolInfo): Promise<string> {
+  return renderTemplate("tool-reference", {
+    name: tool.name,
+    description: tool.description || "(No description)",
+    schemaJson: JSON.stringify(tool.inputSchema, null, 2)
+  });
 }
 
 export async function generateSkill(options: GeneratorOptions): Promise<void> {
@@ -97,7 +92,7 @@ export async function generateSkill(options: GeneratorOptions): Promise<void> {
   await writeFile(join(outputDir, "SKILL.md"), skillMd);
 
   for (const tool of tools) {
-    const ref = generateToolReference(tool);
+    const ref = await generateToolReference(tool);
     await writeFile(
       join(outputDir, "references", "tools", `${slugify(tool.name)}.md`),
       ref
