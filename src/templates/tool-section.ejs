@@ -1,0 +1,12 @@
+### <%= name %>
+
+<%- description %>
+
+<% if (params && params.length > 0) { %>
+**Parameters:**
+<% for (const p of params) { %>
+- `<%= p.key %>` (<%= p.type %><%= p.required ? ", required" : "" %>): <%- p.description %>
+<% } %>
+
+<% } %>
+[Full schema →](./references/tools/<%= slug %>.md)

@@ -6,6 +6,7 @@ import {
   generateMcpClientScript,
   generateScriptDocumentation,
 } from "./script-template";
+import { renderTemplate } from "./templates/render";
 
 export interface GeneratorOptions {
   name: string;
@@ -23,51 +24,54 @@ function slugify(name: string): string {
     .replace(/^-|-$/g, "");
 }
 
-function generateFrontmatter(name: string, tools: ToolInfo[]): string {
+async function generateFrontmatter(name: string, tools: ToolInfo[]): Promise<string> {
   const toolNames = tools.map((t) => t.name).join(", ");
-  return `---
-name: ${name}
-description: |
-  MCP skill providing ${tools.length} tools: ${toolNames}.
-  Use when you need to interact with ${name} capabilities.
----`;
+  return renderTemplate("skill-frontmatter", {
+    name,
+    toolNames,
+    toolCount: tools.length
+  });
 }
 
-function generateToolSection(tool: ToolInfo): string {
-  const params = tool.inputSchema?.properties as Record<string, { type?: string; description?: string }> | undefined;
-  const required = (tool.inputSchema?.required as string[]) || [];
+interface ToolParam {
+  key: string;
+  type: string;
+  required: boolean;
+  description: string;
+}
 
-  let section = `### ${tool.name}\n\n`;
-  section += `${tool.description || "(No description)"}\n\n`;
+async function generateToolSection(tool: ToolInfo): Promise<string> {
+  const props = tool.inputSchema?.properties as Record<string, { type?: string; description?: string }> | undefined;
+  const requiredKeys = (tool.inputSchema?.required as string[]) || [];
 
-  if (params && Object.keys(params).length > 0) {
-    section += "**Parameters:**\n";
-    for (const [key, value] of Object.entries(params)) {
-      const isRequired = required.includes(key);
-      const type = value.type || "unknown";
-      const desc = value.description || "";
-      section += `- \`${key}\` (${type}${isRequired ? ", required" : ""}): ${desc}\n`;
-    }
-    section += "\n";
-  }
+  const params: ToolParam[] = props
+    ? Object.entries(props).map(([key, value]) => ({
+        key,
+        type: value.type || "unknown",
+        required: requiredKeys.includes(key),
+        description: value.description || ""
+      }))
+    : [];
 
-  section += `[Full schema →](./references/tools/${slugify(tool.name)}.md)\n`;
-  return section;
+  return renderTemplate("tool-section", {
+    name: tool.name,
+    description: tool.description || "(No description)",
+    params,
+    slug: slugify(tool.name)
+  });
 }
 
 async function generateSkillMd(name: string, tools: ToolInfo[], withScript?: boolean): Promise<string> {
-  let content = generateFrontmatter(name, tools);
-  content += `\n\n# ${name}\n\n`;
-  content += `## Available Tools\n\n`;
-  for (const tool of tools) {
-    content += generateToolSection(tool) + "\n";
-  }
+  const frontmatter = await generateFrontmatter(name, tools);
+  const toolSections = (await Promise.all(tools.map(generateToolSection))).join("\n");
+  const scriptDocs = withScript ? await generateScriptDocumentation(tools) : "";
 
-  if (withScript) {
-    content += await generateScriptDocumentation(tools);
-  }
-
-  return content;
+  return renderTemplate("skill-md", {
+    frontmatter,
+    name,
+    toolSections,
+    scriptDocs
+  });
 }
 
 function generateToolReference(tool: ToolInfo): string {
