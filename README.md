@@ -29,10 +29,22 @@ skillify pack "npx -y @modelcontextprotocol/server-memory"
 # Include all tools
 skillify pack "node ./my-server.js" --all --name my-skill
 
+# Custom description
+skillify pack "..." --description "Custom skill description here"
+
 # Filter tools
 skillify pack "..." --include tool1,tool2
 skillify pack "..." --exclude tool3,tool4
 ```
+
+#### Options
+
+- `-o, --output <dir>` - Output directory (default: `./<skill-name>`)
+- `-n, --name <name>` - Skill name (default: MCP server name or `mcp-skill`)
+- `-d, --description <description>` - Custom skill description (overrides auto-generated description)
+- `--include <tools>` - Comma-separated list of tools to include
+- `--exclude <tools>` - Comma-separated list of tools to exclude
+- `--all` - Include all tools without prompting
 
 ## Output
 
