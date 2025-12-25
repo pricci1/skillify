@@ -45,6 +45,7 @@ export function createCLI() {
     .description("Pack an MCP server into a Claude Skill")
     .option("-o, --output <dir>", "Output directory")
     .option("-n, --name <name>", "Skill name")
+    .option("-d, --description <description>", "Skill description")
     .option("--include <tools>", "Comma-separated tools to include")
     .option("--exclude <tools>", "Comma-separated tools to exclude")
     .option("--all", "Include all tools without prompting")
@@ -81,6 +82,7 @@ export function createCLI() {
             prompts: info.prompts,
             withScript: true,
             target,
+            description: options.description,
           });
 
           console.log(`✓ Skill generated at: ${outputDir}`);

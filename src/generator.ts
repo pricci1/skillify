@@ -15,6 +15,7 @@ export interface GeneratorOptions {
   prompts: PromptInfo[];
   withScript?: boolean;
   target?: string;
+  description?: string;
 }
 
 function slugify(name: string): string {
@@ -24,12 +25,13 @@ function slugify(name: string): string {
     .replace(/^-|-$/g, "");
 }
 
-async function generateFrontmatter(name: string, tools: ToolInfo[]): Promise<string> {
+async function generateFrontmatter(name: string, tools: ToolInfo[], customDescription?: string): Promise<string> {
   const toolNames = tools.map((t) => t.name).join(", ");
   return renderTemplate("skill-frontmatter", {
     name,
     toolNames,
-    toolCount: tools.length
+    toolCount: tools.length,
+    customDescription
   });
 }
 
@@ -61,8 +63,8 @@ async function generateToolSection(tool: ToolInfo): Promise<string> {
   });
 }
 
-async function generateSkillMd(name: string, tools: ToolInfo[], withScript?: boolean): Promise<string> {
-  const frontmatter = await generateFrontmatter(name, tools);
+async function generateSkillMd(name: string, tools: ToolInfo[], withScript?: boolean, customDescription?: string): Promise<string> {
+  const frontmatter = await generateFrontmatter(name, tools, customDescription);
   const toolSections = (await Promise.all(tools.map(generateToolSection))).join("\n");
   const scriptDocs = withScript ? await generateScriptDocumentation(tools) : "";
 
@@ -83,12 +85,12 @@ async function generateToolReference(tool: ToolInfo): Promise<string> {
 }
 
 export async function generateSkill(options: GeneratorOptions): Promise<void> {
-  const { name, outputDir, tools, withScript, target } = options;
+  const { name, outputDir, tools, withScript, target, description } = options;
 
   await mkdir(outputDir, { recursive: true });
   await mkdir(join(outputDir, "references", "tools"), { recursive: true });
 
-  const skillMd = await generateSkillMd(name, tools, withScript);
+  const skillMd = await generateSkillMd(name, tools, withScript, description);
   await writeFile(join(outputDir, "SKILL.md"), skillMd);
 
   for (const tool of tools) {
