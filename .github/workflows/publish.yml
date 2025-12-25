@@ -28,8 +28,5 @@ jobs:
       - name: Build
         run: bun run build
 
-      - name: Update npm
-        run: npm install -g npm@latest
-
       - name: Publish to NPM
-        run: bun pm pack && npm publish ./*.tgz --access public
+        run: bun pm pack && bunx npm@latest publish ./*.tgz --access public
