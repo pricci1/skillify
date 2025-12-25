@@ -46,6 +46,7 @@ export function createCLI() {
     .option("-o, --output <dir>", "Output directory")
     .option("-n, --name <name>", "Skill name")
     .option("-d, --description <description>", "Skill description")
+    .option("-m, --message <message>", "Custom message to display after title")
     .option("--include <tools>", "Comma-separated tools to include")
     .option("--exclude <tools>", "Comma-separated tools to exclude")
     .option("--all", "Include all tools without prompting")
@@ -83,6 +84,7 @@ export function createCLI() {
             withScript: true,
             target,
             description: options.description,
+            message: options.message,
           });
 
           console.log(`✓ Skill generated at: ${outputDir}`);

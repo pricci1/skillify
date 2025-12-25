@@ -16,6 +16,7 @@ export interface GeneratorOptions {
   withScript?: boolean;
   target?: string;
   description?: string;
+  message?: string;
 }
 
 function slugify(name: string): string {
@@ -63,7 +64,7 @@ async function generateToolSection(tool: ToolInfo): Promise<string> {
   });
 }
 
-async function generateSkillMd(name: string, tools: ToolInfo[], withScript?: boolean, customDescription?: string): Promise<string> {
+async function generateSkillMd(name: string, tools: ToolInfo[], withScript?: boolean, customDescription?: string, customMessage?: string): Promise<string> {
   const frontmatter = await generateFrontmatter(name, tools, customDescription);
   const toolSections = (await Promise.all(tools.map(generateToolSection))).join("\n");
   const scriptDocs = withScript ? await generateScriptDocumentation(tools) : "";
@@ -72,7 +73,8 @@ async function generateSkillMd(name: string, tools: ToolInfo[], withScript?: boo
     frontmatter,
     name,
     toolSections,
-    scriptDocs
+    scriptDocs,
+    customMessage
   });
 }
 
@@ -85,12 +87,12 @@ async function generateToolReference(tool: ToolInfo): Promise<string> {
 }
 
 export async function generateSkill(options: GeneratorOptions): Promise<void> {
-  const { name, outputDir, tools, withScript, target, description } = options;
+  const { name, outputDir, tools, withScript, target, description, message } = options;
 
   await mkdir(outputDir, { recursive: true });
   await mkdir(join(outputDir, "references", "tools"), { recursive: true });
 
-  const skillMd = await generateSkillMd(name, tools, withScript, description);
+  const skillMd = await generateSkillMd(name, tools, withScript, description, message);
   await writeFile(join(outputDir, "SKILL.md"), skillMd);
 
   for (const tool of tools) {

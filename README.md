@@ -32,6 +32,9 @@ skillify pack "node ./my-server.js" --all --name my-skill
 # Custom description
 skillify pack "..." --description "Custom skill description here"
 
+# Custom message
+skillify pack "..." --message "This message appears after the title"
+
 # Filter tools
 skillify pack "..." --include tool1,tool2
 skillify pack "..." --exclude tool3,tool4
@@ -42,6 +45,7 @@ skillify pack "..." --exclude tool3,tool4
 - `-o, --output <dir>` - Output directory (default: `./<skill-name>`)
 - `-n, --name <name>` - Skill name (default: MCP server name or `mcp-skill`)
 - `-d, --description <description>` - Custom skill description (overrides auto-generated description)
+- `-m, --message <message>` - Custom message to display after title in SKILL.md
 - `--include <tools>` - Comma-separated list of tools to include
 - `--exclude <tools>` - Comma-separated list of tools to exclude
 - `--all` - Include all tools without prompting
