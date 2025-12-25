@@ -1,6 +1,9 @@
 {
   "name": "skillify",
   "version": "0.1.3",
+  "repository": {
+    "url": "https://github.com/pricci1/skillify"
+  },
   "type": "module",
   "bin": {
     "skillify": "./dist/index.js"
