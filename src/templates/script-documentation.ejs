@@ -1,16 +1,11 @@
 
-## Using the MCP Script
+## Usage
 
-The skill includes executable scripts for calling MCP tools directly without Amp integration.
-
-### Quick Start
+This skill includes an executable script for calling the tools described above.
 
 ```bash
-# List available tools
-node scripts/call-tool.js --help
-
 # Call a tool
-<%- examples[0] || 'node scripts/call-tool.js <tool-name>' %>
+node scripts/call-tool.js <tool_name> '<json_conforming_to_tool_schema>'
 ```
 
 ### Examples
@@ -21,10 +16,3 @@ node scripts/call-tool.js --help
 ```
 
 <% } %>
-
-### Scripts Included
-
-- **scripts/call-tool.js** - Executable script to call tools
-- **scripts/mcp-client.ts** - MCP connection helper
-
-The target MCP server is embedded in the script at generation time.
