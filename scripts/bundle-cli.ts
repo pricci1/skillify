@@ -4,7 +4,7 @@ import { Glob } from "bun";
 
 const result = await Bun.build({
   entrypoints: ["src/index.ts"],
-  target: "bun",
+  target: "node",
   minify: true,
   outdir: "dist",
   naming: {
