@@ -2,6 +2,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { getVersion } from '../version';
 
 export interface MCPConnection {
   client: Client;
@@ -19,7 +20,7 @@ function parseCommand(target: string): { command: string; args: string[] } {
 
 export async function connectToMCP(target: string): Promise<MCPConnection> {
   try {
-    const client = new Client({ name: "skillify", version: "0.1.0" });
+    const client = new Client({ name: "skillify", version: getVersion() });
 
     if (isUrl(target)) {
       const url = new URL(target);
