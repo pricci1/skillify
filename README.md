@@ -2,6 +2,11 @@
 
 Pack MCP (Model Context Protocol) servers into Claude Skills.
 
+> [!NOTE]
+> MCP servers can change their APIs freely because clients (LLMs) get the latest spec at runtime. Skillify breaks this model. It creates a snapshot of the server's API at generation time. This snapshot may not work with newer server versions.
+>
+> Maybe a future version will support a flag for dynamic.
+
 ## Installation
 
 ```bash
