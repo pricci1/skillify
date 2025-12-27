@@ -3,6 +3,7 @@ import { connectToMCP } from "./client";
 import { introspect } from "./introspect";
 import { filterTools } from "./filter";
 import { generateSkill } from "./generator";
+import { getVersion } from '../version';
 
 export function createCLI() {
   const program = new Command();
@@ -10,7 +11,7 @@ export function createCLI() {
   program
     .name("skillify")
     .description("Pack MCP servers into Claude Skills")
-    .version("0.1.0");
+    .version(getVersion());
 
   program
     .command("list <target>")
