@@ -95,6 +95,10 @@ export function createCLI() {
             message: options.message,
             amp: options.amp,
             pinTools: options.pinTools,
+            includeTools:
+              selectedTools.length < info.tools.length
+                ? selectedTools.map((t) => t.name)
+                : undefined,
           });
 
           console.log(`✓ Skill generated at: ${outputDir}`);

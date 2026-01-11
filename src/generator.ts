@@ -20,6 +20,7 @@ export interface GeneratorOptions {
   message?: string;
   amp?: boolean;
   pinTools?: boolean;
+  includeTools?: string[];
 }
 
 function slugify(name: string): string {
@@ -128,8 +129,10 @@ export async function generateSkill(options: GeneratorOptions): Promise<void> {
     const skillMd = await generateAmpSkillMd(name, tools, description, message);
     await writeFile(join(outputDir, "SKILL.md"), skillMd);
 
-    const includeTools = pinTools ? tools.map((t) => t.name) : undefined;
-    const mcpJson = generateMcpJson({ name, target, includeTools });
+    const toolsToInclude = pinTools
+      ? tools.map((t) => t.name)
+      : options.includeTools;
+    const mcpJson = generateMcpJson({ name, target, includeTools: toolsToInclude });
     await writeFile(join(outputDir, "mcp.json"), JSON.stringify(mcpJson, null, 2));
   } else {
     await mkdir(join(outputDir, "references", "tools"), { recursive: true });
