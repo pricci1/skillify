@@ -1,0 +1,12 @@
+<%# src/templates/skill-md-amp.ejs %>
+<%- frontmatter %>
+
+# <%= name %>
+<% if (customMessage) { %>
+
+<%= customMessage %>
+<% } %>
+
+## Available Tools
+
+<%- toolList %>
