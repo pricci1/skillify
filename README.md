@@ -1,6 +1,6 @@
 # skillify
 
-Pack MCP (Model Context Protocol) servers into Claude Skills.
+Pack MCP (Model Context Protocol) servers into Agent Skills.
 
 > [!NOTE]
 > MCP servers can change their APIs freely because clients (LLMs) get the latest spec at runtime. Skillify breaks this model. It creates a snapshot of the server's API at generation time. This snapshot may not work with newer server versions.
@@ -45,25 +45,49 @@ skillify pack "..." --include tool1,tool2
 skillify pack "..." --exclude tool3,tool4
 ```
 
-#### Options
+### Options
 
-- `-o, --output <dir>` - Output directory (default: `./<skill-name>`)
-- `-n, --name <name>` - Skill name (default: MCP server name or `mcp-skill`)
-- `-d, --description <description>` - Custom skill description (overrides auto-generated description)
-- `-m, --message <message>` - Custom message to display after title in SKILL.md
-- `--include <tools>` - Comma-separated list of tools to include
-- `--exclude <tools>` - Comma-separated list of tools to exclude
-- `--all` - Include all tools without prompting
+| Option | Description |
+|--------|-------------|
+| `-o, --output <dir>` | Output directory (default: `./<skill-name>`) |
+| `-n, --name <name>` | Skill name (default: MCP server name or `mcp-skill`) |
+| `-d, --description <desc>` | Custom skill description |
+| `-m, --message <msg>` | Custom message after title in SKILL.md |
+| `--include <tools>` | Comma-separated tools to include |
+| `--exclude <tools>` | Comma-separated tools to exclude |
+| `--all` | Include all tools without prompting |
+| `--amp` | Generate Amp-native skill with `mcp.json` |
+| `--pin-tools` | Force `includeTools` in `mcp.json` (requires `--amp --all`) |
 
-## Output
+## Output Format
+
+### Standard Mode (default)
 
 Generates an [Agent Skills](https://agentskills.io/specification) compliant directory:
 
 ```
 my-skill/
 ├── SKILL.md
-└── references/
-    └── tools/
-        ├── tool-one.md
-        └── tool-two.md
+├── references/tools/
+│   ├── tool-one.md
+│   └── tool-two.md
+└── scripts/
+    ├── call-tool.js
+    └── mcp-client.js
 ```
+
+### Amp Mode (`--amp`)
+
+Generates an [Amp](https://ampcode.com)-compatible skill with embedded MCP configuration:
+
+```bash
+skillify pack "npx -y @modelcontextprotocol/server-memory" --amp --name memory --all
+```
+
+```
+my-skill/
+├── SKILL.md
+└── mcp.json
+```
+
+The `mcp.json` file specifies the MCP server command and optionally pins tools with `includeTools`.
