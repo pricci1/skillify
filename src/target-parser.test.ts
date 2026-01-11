@@ -5,12 +5,13 @@ import { parseTarget } from "./target-parser";
 describe("parseTarget", () => {
   it("parses simple command", () => {
     const result = parseTarget("npx server");
-    expect(result).toEqual({ command: "npx", args: ["server"] });
+    expect(result).toEqual({ type: "stdio", command: "npx", args: ["server"] });
   });
 
   it("parses command with multiple args", () => {
     const result = parseTarget("npx -y @modelcontextprotocol/server-memory");
     expect(result).toEqual({
+      type: "stdio",
       command: "npx",
       args: ["-y", "@modelcontextprotocol/server-memory"],
     });
@@ -18,18 +19,16 @@ describe("parseTarget", () => {
 
   it("handles single command with no args", () => {
     const result = parseTarget("my-server");
-    expect(result).toEqual({ command: "my-server", args: [] });
+    expect(result).toEqual({ type: "stdio", command: "my-server", args: [] });
   });
 
-  it("throws for http URL", () => {
-    expect(() => parseTarget("http://localhost:3000")).toThrow(
-      "SSE transport is deprecated"
-    );
+  it("parses http URL as Streamable HTTP", () => {
+    const result = parseTarget("http://localhost:3000/mcp");
+    expect(result).toEqual({ type: "url", url: "http://localhost:3000/mcp" });
   });
 
-  it("throws for https URL", () => {
-    expect(() => parseTarget("https://api.example.com/mcp")).toThrow(
-      "SSE transport is deprecated"
-    );
+  it("parses https URL as Streamable HTTP", () => {
+    const result = parseTarget("https://mcp.deepwiki.com/mcp");
+    expect(result).toEqual({ type: "url", url: "https://mcp.deepwiki.com/mcp" });
   });
 });

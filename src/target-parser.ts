@@ -1,17 +1,15 @@
-export interface ParsedTarget {
-  command: string;
-  args: string[];
-}
+export type ParsedTarget =
+  | { type: "stdio"; command: string; args: string[] }
+  | { type: "url"; url: string };
 
 export function parseTarget(target: string): ParsedTarget {
   if (target.startsWith("http://") || target.startsWith("https://")) {
-    throw new Error(
-      "SSE transport is deprecated (MCP spec 2025-03-26). Use stdio or Streamable HTTP."
-    );
+    return { type: "url", url: target };
   }
 
   const parts = target.split(/\s+/).filter(Boolean);
   return {
+    type: "stdio",
     command: parts[0]!,
     args: parts.slice(1),
   };

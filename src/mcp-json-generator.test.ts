@@ -3,7 +3,7 @@ import { it, expect, describe } from "bun:test";
 import { generateMcpJson } from "./mcp-json-generator";
 
 describe("generateMcpJson", () => {
-  it("generates minimal mcp.json content", () => {
+  it("generates minimal stdio mcp.json content", () => {
     const result = generateMcpJson({
       name: "memory",
       target: "npx -y @modelcontextprotocol/server-memory",
@@ -17,7 +17,20 @@ describe("generateMcpJson", () => {
     });
   });
 
-  it("includes tools when specified", () => {
+  it("generates url-based mcp.json for http targets", () => {
+    const result = generateMcpJson({
+      name: "deepwiki",
+      target: "https://mcp.deepwiki.com/mcp",
+    });
+
+    expect(result).toEqual({
+      "deepwiki-server": {
+        url: "https://mcp.deepwiki.com/mcp",
+      },
+    });
+  });
+
+  it("includes tools when specified for stdio", () => {
     const result = generateMcpJson({
       name: "memory",
       target: "npx server",
@@ -29,6 +42,21 @@ describe("generateMcpJson", () => {
         command: "npx",
         args: ["server"],
         includeTools: ["tool1", "tool2"],
+      },
+    });
+  });
+
+  it("includes tools when specified for url", () => {
+    const result = generateMcpJson({
+      name: "deepwiki",
+      target: "https://mcp.deepwiki.com/mcp",
+      includeTools: ["ask_question"],
+    });
+
+    expect(result).toEqual({
+      "deepwiki-server": {
+        url: "https://mcp.deepwiki.com/mcp",
+        includeTools: ["ask_question"],
       },
     });
   });
