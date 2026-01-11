@@ -3,7 +3,7 @@ import { connectToMCP } from "./client";
 import { introspect } from "./introspect";
 import { filterTools } from "./filter";
 import { generateSkill } from "./generator";
-import { getVersion } from '../version';
+import { getVersion } from './version';
 
 export function createCLI() {
   const program = new Command();
@@ -51,8 +51,15 @@ export function createCLI() {
     .option("--include <tools>", "Comma-separated tools to include")
     .option("--exclude <tools>", "Comma-separated tools to exclude")
     .option("--all", "Include all tools without prompting")
+    .option("--amp", "Generate Amp-native skill with mcp.json")
+    .option("--pin-tools", "Force includeTools in mcp.json (requires --amp --all)")
     .action(async (target: string, options) => {
       try {
+        // Validation
+        if (options.pinTools && !options.amp) {
+          console.warn("Warning: --pin-tools has no effect without --amp");
+        }
+
         console.log(`Connecting to: ${target}`);
         const { client, close } = await connectToMCP(target);
 
@@ -86,6 +93,8 @@ export function createCLI() {
             target,
             description: options.description,
             message: options.message,
+            amp: options.amp,
+            pinTools: options.pinTools,
           });
 
           console.log(`✓ Skill generated at: ${outputDir}`);

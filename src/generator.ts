@@ -7,6 +7,7 @@ import {
   generateScriptDocumentation,
 } from "./script-template";
 import { renderTemplate } from "./templates/render";
+import { generateMcpJson } from "./mcp-json-generator";
 
 export interface GeneratorOptions {
   name: string;
@@ -17,6 +18,8 @@ export interface GeneratorOptions {
   target?: string;
   description?: string;
   message?: string;
+  amp?: boolean;
+  pinTools?: boolean;
 }
 
 function slugify(name: string): string {
@@ -87,7 +90,7 @@ async function generateToolReference(tool: ToolInfo): Promise<string> {
 }
 
 export async function generateSkill(options: GeneratorOptions): Promise<void> {
-  const { name, outputDir, tools, withScript, target, description, message } = options;
+  const { name, outputDir, tools, withScript, target, description, message, amp, pinTools } = options;
 
   await mkdir(outputDir, { recursive: true });
   await mkdir(join(outputDir, "references", "tools"), { recursive: true });
@@ -112,6 +115,20 @@ export async function generateSkill(options: GeneratorOptions): Promise<void> {
     await writeFile(
       join(outputDir, "scripts", "mcp-client.js"),
       generateMcpClientScript()
+    );
+  }
+
+  // Generate mcp.json for Amp-native skills
+  if (amp && target) {
+    const includeTools = pinTools ? tools.map(t => t.name) : undefined;
+    const mcpJson = generateMcpJson({
+      name,
+      target,
+      includeTools,
+    });
+    await writeFile(
+      join(outputDir, "mcp.json"),
+      JSON.stringify(mcpJson, null, 2)
     );
   }
 }
