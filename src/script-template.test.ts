@@ -47,7 +47,7 @@ describe("generateScriptDocumentation", () => {
       },
     ];
     const doc = await generateScriptDocumentation(tools);
-    expect(doc).toContain("## Using the MCP Script");
+    expect(doc).toContain("## Usage");
     expect(doc).toContain("node scripts/call-tool.js");
     expect(doc).toContain("search_files");
   });

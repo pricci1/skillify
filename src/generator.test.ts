@@ -92,7 +92,7 @@ describe("generateSkill", () => {
     });
 
     const content = await readFile(join(TEST_OUTPUT, "SKILL.md"), "utf-8");
-    expect(content).toContain("## Using the MCP Script");
+    expect(content).toContain("## Usage");
   });
 
   it("does not create scripts directory when withScript is false", async () => {

@@ -8,7 +8,7 @@ describe("script-documentation template", () => {
       'node scripts/call-tool.js search'
     ];
     const result = await renderTemplate("script-documentation", { examples });
-    expect(result).toContain("## Using the MCP Script");
+    expect(result).toContain("## Usage");
     expect(result).toContain(examples[0]!);
   });
 });
