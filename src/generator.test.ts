@@ -105,4 +105,64 @@ describe("generateSkill", () => {
 
     await expect(access(join(TEST_OUTPUT, "scripts"))).rejects.toThrow();
   });
+
+  it("generates mcp.json when amp is true", async () => {
+    await generateSkill({
+      name: "test-skill",
+      outputDir: TEST_OUTPUT,
+      tools: sampleTools,
+      prompts: [],
+      target: "npx -y @mcp/server",
+      amp: true,
+    });
+
+    const content = await readFile(join(TEST_OUTPUT, "mcp.json"), "utf-8");
+    const parsed = JSON.parse(content);
+    expect(parsed["test-skill-server"]).toBeDefined();
+    expect(parsed["test-skill-server"].command).toBe("npx");
+  });
+
+  it("does not create scripts directory when amp is true", async () => {
+    await generateSkill({
+      name: "test-skill",
+      outputDir: TEST_OUTPUT,
+      tools: sampleTools,
+      prompts: [],
+      target: "npx -y @mcp/server",
+      amp: true,
+    });
+
+    await expect(access(join(TEST_OUTPUT, "scripts"))).rejects.toThrow();
+  });
+
+  it("does not create references directory when amp is true", async () => {
+    await generateSkill({
+      name: "test-skill",
+      outputDir: TEST_OUTPUT,
+      tools: sampleTools,
+      prompts: [],
+      target: "npx -y @mcp/server",
+      amp: true,
+    });
+
+    await expect(access(join(TEST_OUTPUT, "references"))).rejects.toThrow();
+  });
+
+  it("throws error when amp is true but target is missing", async () => {
+    let error: Error | null = null;
+    try {
+      await generateSkill({
+        name: "test-skill",
+        outputDir: TEST_OUTPUT,
+        tools: sampleTools,
+        prompts: [],
+        amp: true,
+      });
+    } catch (e) {
+      error = e as Error;
+    }
+
+    expect(error).toBeDefined();
+    expect(error?.message).toContain("Target is required for amp mode");
+  });
 });

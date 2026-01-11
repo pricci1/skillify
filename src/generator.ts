@@ -81,6 +81,32 @@ async function generateSkillMd(name: string, tools: ToolInfo[], withScript?: boo
   });
 }
 
+async function generateAmpSkillMd(
+  name: string,
+  tools: ToolInfo[],
+  customDescription?: string,
+  customMessage?: string
+): Promise<string> {
+  const toolNames = tools.map((t) => t.name).join(", ");
+  const frontmatter = await renderTemplate("skill-frontmatter-amp", {
+    name,
+    toolNames,
+    toolCount: tools.length,
+    customDescription,
+  });
+
+  const toolList = tools
+    .map((t) => `- \`${t.name}\` - ${t.description || "(No description)"}`)
+    .join("\n");
+
+  return renderTemplate("skill-md-amp", {
+    frontmatter,
+    name,
+    toolList,
+    customMessage,
+  });
+}
+
 async function generateToolReference(tool: ToolInfo): Promise<string> {
   return renderTemplate("tool-reference", {
     name: tool.name,
@@ -93,42 +119,42 @@ export async function generateSkill(options: GeneratorOptions): Promise<void> {
   const { name, outputDir, tools, withScript, target, description, message, amp, pinTools } = options;
 
   await mkdir(outputDir, { recursive: true });
-  await mkdir(join(outputDir, "references", "tools"), { recursive: true });
 
-  const skillMd = await generateSkillMd(name, tools, withScript, description, message);
-  await writeFile(join(outputDir, "SKILL.md"), skillMd);
+  if (amp) {
+    if (!target) {
+      throw new Error("Target is required for amp mode");
+    }
 
-  for (const tool of tools) {
-    const ref = await generateToolReference(tool);
-    await writeFile(
-      join(outputDir, "references", "tools", `${slugify(tool.name)}.md`),
-      ref
-    );
-  }
+    const skillMd = await generateAmpSkillMd(name, tools, description, message);
+    await writeFile(join(outputDir, "SKILL.md"), skillMd);
 
-  if (withScript && target) {
-    await mkdir(join(outputDir, "scripts"), { recursive: true });
-    await writeFile(
-      join(outputDir, "scripts", "call-tool.js"),
-      await generateCallToolScript(target)
-    );
-    await writeFile(
-      join(outputDir, "scripts", "mcp-client.js"),
-      generateMcpClientScript()
-    );
-  }
+    const includeTools = pinTools ? tools.map((t) => t.name) : undefined;
+    const mcpJson = generateMcpJson({ name, target, includeTools });
+    await writeFile(join(outputDir, "mcp.json"), JSON.stringify(mcpJson, null, 2));
+  } else {
+    await mkdir(join(outputDir, "references", "tools"), { recursive: true });
 
-  // Generate mcp.json for Amp-native skills
-  if (amp && target) {
-    const includeTools = pinTools ? tools.map(t => t.name) : undefined;
-    const mcpJson = generateMcpJson({
-      name,
-      target,
-      includeTools,
-    });
-    await writeFile(
-      join(outputDir, "mcp.json"),
-      JSON.stringify(mcpJson, null, 2)
-    );
+    const skillMd = await generateSkillMd(name, tools, withScript, description, message);
+    await writeFile(join(outputDir, "SKILL.md"), skillMd);
+
+    for (const tool of tools) {
+      const ref = await generateToolReference(tool);
+      await writeFile(
+        join(outputDir, "references", "tools", `${slugify(tool.name)}.md`),
+        ref
+      );
+    }
+
+    if (withScript && target) {
+      await mkdir(join(outputDir, "scripts"), { recursive: true });
+      await writeFile(
+        join(outputDir, "scripts", "call-tool.js"),
+        await generateCallToolScript(target)
+      );
+      await writeFile(
+        join(outputDir, "scripts", "mcp-client.js"),
+        generateMcpClientScript()
+      );
+    }
   }
 }
