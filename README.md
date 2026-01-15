@@ -49,7 +49,7 @@ skillify pack "..." --exclude tool3,tool4
 
 | Option | Description |
 |--------|-------------|
-| `-o, --output <dir>` | Output directory (default: `./<skill-name>`) |
+| `-o, --output <dir>` | Parent output directory; skill is placed in `<dir>/<skill-name>` (default: `.`) |
 | `-n, --name <name>` | Skill name (default: MCP server name or `mcp-skill`) |
 | `-d, --description <desc>` | Custom skill description |
 | `-m, --message <msg>` | Custom message after title in SKILL.md |

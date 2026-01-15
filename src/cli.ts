@@ -81,7 +81,8 @@ export function createCLI() {
           }
 
           const skillName = options.name || info.name || "mcp-skill";
-          const outputDir = options.output || `./${skillName}`;
+          const baseDir = options.output || ".";
+          const outputDir = `${baseDir}/${skillName}`;
 
           console.log(`Generating skill: ${skillName}`);
           await generateSkill({
